@@ -1,0 +1,20 @@
+# Use the official Go image
+FROM golang:1.20
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the Go Modules manifests
+COPY go.mod go.sum ./
+
+# Download the dependencies
+RUN go mod download
+
+# Copy the source code into the container
+COPY . .
+
+# Build the Go app
+RUN go build -o notification_consumer ./consumer/
+
+# Run the binary program produced by `go build`
+CMD ["./notification_consumer"]

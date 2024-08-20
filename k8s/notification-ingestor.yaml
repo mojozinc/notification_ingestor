@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-ingestor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-ingestor
+  template:
+    metadata:
+      labels:
+        app: notification-ingestor
+    spec:
+      containers:
+      - name: notification-container
+        image: sjangra314/notification-ingestor:latest  # Replace with your Docker image
+        ports:
+        - containerPort: 80
+        env:
+        - name: KAFKA_BROKER
+          value: "kafka:9092"  # Kafka service name and port
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
