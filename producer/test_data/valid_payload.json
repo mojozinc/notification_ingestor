@@ -1,0 +1,24 @@
+{
+    "alert_id": "12345",
+    "timestamp": "2024-08-21T14:30:00Z",
+    "alert_type": "data_quality",
+    "severity": "critical",
+    "details": {
+      "alert_category": "column_quality",
+      "dataset": "sales_data",
+      "table": "transactions",
+      "column": "customer_email",
+      "condition": "null_value_above_threshold",
+      "threshold": 5,
+      "current_null_count": 10,
+      "total_rows": 1000
+    },
+    "metadata": {
+      "source": "monte_carlo",
+      "data_source": "database_name",
+      "environment": "production"
+    },
+    "action_required": true,
+    "description": "The column 'customer_email' in the 'transactions' table has 10 null values, exceeding the threshold of 5 null values."
+  }
+  

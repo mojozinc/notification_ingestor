@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: notification-ingestor
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: notification-ingestor
@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: notification-container
-        image: sjangra314/notification-ingestor:latest  # Replace with your Docker image
+        image: notification-ingestor:latest  # Replace with your Docker image
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         env:
