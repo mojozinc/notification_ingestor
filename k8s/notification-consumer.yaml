@@ -21,6 +21,11 @@ spec:
         env:
         - name: KAFKA_BROKER
           value: "kafka:9092"  # Kafka service name and port
+        - name: KAFKA_CLIENT_PASSWORDS
+          valueFrom:
+            secretKeyRef:
+              name: kafka-user-passwords   # The name of the Kubernetes secret
+              key: client-passwords        # The specific key within the secret- name: SECRET_USERNAME    
         resources:
           requests:
             memory: "256Mi"

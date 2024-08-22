@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,21 +11,49 @@ import (
 )
 
 var (
-	kafkaBroker = os.Getenv("KAFKA_BROKER")
-	kafkaTopic  = "alerts"
-	producer    *kafka.Producer
+	kafkaBroker   = os.Getenv("KAFKA_BROKER")
+	kafkaPassword = os.Getenv("KAFKA_CLIENT_PASSWORDS")
+	kafkaTopic    = "alerts"
+	producer      *kafka.Producer
 )
+
+// In a production setting we can read the kafka config from etcd or consul
+func readKafkaConfig() (kafka.ConfigMap, error) {
+	// Read the Kafka configuration from a JSON config file
+	configFile, err := os.Open("kafka_config.json")
+	if err != nil {
+		return nil, fmt.Errorf("failed to open Kafka config file: %v", err)
+	}
+	defer configFile.Close()
+
+	var kafkaConfig map[string]string
+	jsonParser := json.NewDecoder(configFile)
+	if err := jsonParser.Decode(&kafkaConfig); err != nil {
+		return nil, fmt.Errorf("failed to parse Kafka config file: %v", err)
+	}
+
+	// Create a new Kafka producer with the configuration
+	configMap := &kafka.ConfigMap{
+		"bootstrap.servers": kafkaBroker,
+		"sasl.password":     kafkaPassword,
+	}
+	for key, value := range kafkaConfig {
+		(*configMap)[key] = value
+	}
+	return *configMap, nil
+}
 
 func init() {
 	// Create a new Kafka producer
 	var err error
-	producer, err = kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": kafkaBroker,
-		"security.protocol": "SASL_PLAINTEXT",
-		"sasl.mechanism":    "PLAIN",
-		"sasl.username":     "user1",
-		"sasl.password":     "U15z0kC9yC",
-	})
+
+	// Read the Kafka configuration
+	kafkaConfigMap, err := readKafkaConfig()
+	if err != nil {
+		log.Fatalf("Failed to read Kafka config: %v", err)
+	}
+
+	producer, err = kafka.NewProducer(&kafkaConfigMap)
 	if err != nil {
 		log.Fatalf("Failed to create producer: %v", err)
 	}
